@@ -1,0 +1,149 @@
+div.bunny-container {
+    position: relative;
+    width: 250px;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    div.head {
+        position: absolute;
+        bottom: 0;
+        background-color: #cccdee;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        z-index: 10;
+        border: solid 2px #8c8c8c;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    div.face-mask {
+        position: absolute;
+        top: 40px;
+        left: 20px;
+        width: 160px;
+        height: 80px;
+        background-color: #0d0f14;
+        border-radius: 40px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        animation: face-nod 5s infinite;
+
+        &.talking {
+            animation: face-nod 5s infinite, glow 2s infinite ease-in-out;
+        }
+    }
+
+    .eye {
+        width: 30px;
+        height: 30px;
+        background-image: linear-gradient(to bottom, #2267c5, #758aa9);
+        border-radius: 50%;
+        animation: blink 15s infinite;
+    }
+
+    .ear-left, .ear-right {
+        position: absolute;
+        top: 0;
+        width: 70px;
+        background-color: #cccdee;
+        height: 220px;
+        border: solid 2px #8c8c8c;
+        border-radius: 45% 45% 0 0;
+        transform-origin: bottom center;
+        z-index: 5;
+    }
+
+    .ear-left {
+        left: 35px;
+        animation: ear-spread 4s infinite ease-in-out;
+    }
+
+    .ear-right {
+        right: 35px;
+        animation: ear-spread-reverse 4s infinite ease-in-out;
+    }
+
+    .inner-ear {
+        position: absolute;
+        bottom: 0;
+        left: 10px;
+        width: 50px;
+        height: 175px;
+        background-color: #bfa186;
+        border-radius: 45% 45% 0 0;
+    }
+
+    .ear-left .inner-ear {
+        left: 10px;
+    }
+
+    .ear-right .inner-ear {
+        left: 10px;
+    }
+}
+
+button.stop-button {
+    padding: 5px 15px;
+    margin-top: 10px;
+    border-radius: 6px;
+    background-color: #860000;
+    color: white;
+    cursor: pointer;
+}
+
+@keyframes ear-spread {
+    0% {
+        transform: rotate(-12deg);
+    }
+    50% {
+        transform: rotate(3deg);
+    }
+    100% {
+        transform: rotate(-12deg);
+    }
+}
+
+@keyframes ear-spread-reverse {
+    0% {
+        transform: rotate(12deg);
+    }
+    50% {
+        transform: rotate(-3deg);
+    }
+    100% {
+        transform: rotate(12deg);
+    }
+}
+
+@keyframes face-nod {
+    0%, 15%, 30%, 45%, 60%, 75%, 100% {
+        transform: translateY(0);
+    }
+    5% {
+        transform: translateY(5px);
+    }
+    10% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes blink {
+    0%, 40%, 42%, 60%, 62%, 80%, 82%, 100% {
+        transform: scaleY(1);
+    }
+    41%, 61%, 81% {
+        transform: scaleY(0.1);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 3px 1px rgba(34, 103, 197, 0.62);
+    }
+    50% {
+        box-shadow: 0 0 10px 5px rgb(34, 103, 197);
+    }
+}

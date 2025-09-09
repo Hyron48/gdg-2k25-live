@@ -1,0 +1,38 @@
+{
+    "name": "be-assistant-gemini",
+    "version": "1.0.0",
+    "description": "Assistent with Gemini Live",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon --ext ts src/app.ts",
+        "debug": "nodemon --ext ts --inspect src/app.ts",
+        "build": "tsc",
+        "start:prod": "node dist/app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/overlend/be-assistant-gemini.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://gitlab.com/overlend/be-assistant-gemini/issues"
+    },
+    "homepage": "https://gitlab.com/overlend/be-assistant-gemini#readme",
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.0.1",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "@google/genai": "^1.6.0",
+        "@modelcontextprotocol/sdk": "^1.0.0",
+        "@types/ws": "^8.18.1",
+        "cors": "^2.8.5",
+        "express": "^5.1.0",
+        "ws": "^8.18.2"
+    }
+}
