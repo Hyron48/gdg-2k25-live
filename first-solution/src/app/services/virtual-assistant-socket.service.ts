@@ -1,7 +1,6 @@
 import {Injectable, signal} from '@angular/core';
 import {WebSocketVitalStatus, WebSocketVitalStatusType} from '../helpers/websocket-vital-status.enum';
 import {GoogleGenAI, LiveServerMessage, Session} from '@google/genai';
-import {environment} from '../../environment';
 import {geminiConfig} from '../helpers/gemini-config';
 
 @Injectable({
@@ -21,7 +20,7 @@ export class VirtualAssistantSocketService {
 
     constructor() {
         this.geminiAi = new GoogleGenAI({
-            apiKey: environment.geminiApiKey
+            apiKey: 'your-api-key'
         });
     }
 
@@ -63,6 +62,8 @@ export class VirtualAssistantSocketService {
             return;
         }
         try {
+            // Why sendRealtimeInput instead of sendClientContent?
+            // https://ai.google.dev/gemini-api/docs/live-guide?hl=it#use-automatic-vad
             this.session.sendRealtimeInput({
                 audio: {
                     data: payload,
@@ -79,6 +80,8 @@ export class VirtualAssistantSocketService {
             return;
         }
         try {
+            // Why send image instead of video?
+            // https://ai.google.dev/gemini-api/docs/live-guide?hl=it#maximum-session-duration
             this.session.sendRealtimeInput({
                 media: {
                     data: payload.split(';base64,').pop(),

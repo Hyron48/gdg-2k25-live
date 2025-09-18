@@ -10,7 +10,7 @@ export class GeminiService {
             languageCode: "it-IT",
             voiceConfig: {
                 prebuiltVoiceConfig: {
-                    voiceName: 'Leda',
+                    voiceName: 'Aoede',
                 }
             }
         },
@@ -20,7 +20,7 @@ export class GeminiService {
 
     public constructor() {
         this.geminiAi = new GoogleGenAI({
-            apiKey: 'your-google-api-key'
+            apiKey: 'your-api-key'
         });
         this.serverService = ServerService.getInstance();
     }

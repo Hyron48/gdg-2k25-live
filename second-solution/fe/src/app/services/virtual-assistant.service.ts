@@ -26,7 +26,7 @@ export class VirtualAssistantService {
         return this._$isRecording();
     }
 
-    public async startRecordingSession() {
+    public async startRecordingSession(): Promise<boolean> {
         try {
             this.screenStream = await navigator.mediaDevices.getDisplayMedia({video: true, audio: false});
             const audioStream = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
@@ -36,10 +36,35 @@ export class VirtualAssistantService {
             await this.setupAudioStreaming(audioStream);
 
             this._$isRecording.set(true);
+            return true;
         } catch (error) {
             console.error('Error starting recording session => ', error);
+            return false;
         }
     }
+
+    public stopRecordingSession() {
+        if (this.screenCaptureInterval) {
+            clearInterval(this.screenCaptureInterval);
+            this.screenCaptureInterval = undefined;
+            if (this.screenStream) {
+                this.screenStream.getTracks().forEach(track => track.stop());
+            }
+        }
+        if (this.audioContext) {
+            this.audioStreamSource?.disconnect();
+            this.audioStreamSource?.mediaStream.getTracks().forEach(track => track.stop());
+            this.audioWorkletNode?.disconnect();
+            if (this.audioContext.state !== 'closed') {
+                this.audioContext.close();
+            }
+        }
+
+        this.assistantLiveSessionSocketService.closeConnection();
+        this._$isRecording.set(false);
+    }
+
+    // Private Methods
 
     private async setupAudioStreaming(stream: MediaStream) {
         this.audioContext = new AudioContext({sampleRate: 16000});
@@ -93,26 +118,5 @@ export class VirtualAssistantService {
                 console.error('Errore durante la cattura dello screenshot:', error);
             }
         }, 1000);
-    }
-
-    public stopRecordingSession() {
-        if (this.screenCaptureInterval) {
-            clearInterval(this.screenCaptureInterval);
-            this.screenCaptureInterval = undefined;
-            if (this.screenStream) {
-                this.screenStream.getTracks().forEach(track => track.stop());
-            }
-        }
-        if (this.audioContext) {
-            this.audioStreamSource?.disconnect();
-            this.audioStreamSource?.mediaStream.getTracks().forEach(track => track.stop());
-            this.audioWorkletNode?.disconnect();
-            if (this.audioContext.state !== 'closed') {
-                this.audioContext.close();
-            }
-        }
-
-        this.assistantLiveSessionSocketService.closeConnection();
-        this._$isRecording.set(false);
     }
 }

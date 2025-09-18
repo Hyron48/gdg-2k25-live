@@ -1,5 +1,4 @@
-import { readFileSync } from 'fs';
-import { UpdateGeminiResponse } from '../models/update-gemini-response';
+import {readFileSync} from 'fs';
 
 export class ServerService {
     private static instance: ServerService;

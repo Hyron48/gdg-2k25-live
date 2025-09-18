@@ -18,10 +18,14 @@ import {WebSocketVitalStatus} from '../../helpers/websocket-vital-status.enum';
             </div>
 
             <h1 class="text-3xl md:text-4xl font-extrabold mb-4" style="color: #2267c5">
-                Parla con Rabbit
+                🐰 Chiacchiera cu’ Rabbit!
             </h1>
             <p class="text-gray-400 mb-8 leading-relaxed">
-                Avvia una nuova sessione per interagire con il tuo assistente virtuale personale.
+                Uè uagliò, Campobasso t’aspetta! 😍
+                <br>
+                Nun sai comm’ arrivà? Tranquill’, ci pens’ Rabbit!
+                <br>
+                Avvia ‘na sessione e facimme due chiacchiere: t’aiuto passo passo a prenotà i biglietti e a goderti la città bella bella!
             </p>
 
             <button
@@ -31,7 +35,7 @@ import {WebSocketVitalStatus} from '../../helpers/websocket-vital-status.enum';
                 @if (isSessionRecording()) {
                     <span>Termina la sessione</span>
                 } @else {
-                    <span>Condividi lo schermo ed inizia a parlare</span>
+                    <span>💛 Vieni, parlam’ cu’ Rabbit e partimm’ pe’ Campobasso!</span>
                 }
             </button>
 
@@ -69,9 +73,9 @@ export class VirtualAssistant {
     // Private Methods
 
     private async startRecordingSession() {
-        await this.assistantLiveSessionService.startRecordingSession();
+        const isConnectionStable = await this.assistantLiveSessionService.startRecordingSession();
 
-        if (this.pipWindow) {
+        if (this.pipWindow || !isConnectionStable) {
             return;
         }
 

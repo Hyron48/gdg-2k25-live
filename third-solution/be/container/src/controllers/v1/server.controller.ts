@@ -6,26 +6,17 @@ export const pingServer = (_: Request, res: Response): void => {
 };
 
 export const generateEphemeralToken = (_: Request, res: Response): void => {
-    const client = new GoogleGenAI({apiKey: 'your-google-api-key'});
+    const client = new GoogleGenAI({
+        apiKey: 'your-api-key'
+    });
 
     client.authTokens.create({
         config: {
-            uses: 5,
+            uses: 1,
             httpOptions: {apiVersion: 'v1alpha'},
         },
     }).then(
-        (token) => {
-            console.log(token);
-            res.status(200).json(token)
-        },
-        (error) => {
-            console.log(error);
-            res.status(500).json({error})
-        }
+        (token) => res.status(200).json(token),
+        (error) => res.status(500).json({error})
     );
 }
-
-export default {
-    pingServer,
-    generateEphemeralToken
-};
