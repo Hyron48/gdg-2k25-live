@@ -27,18 +27,37 @@ export class VirtualAssistantService {
         return this._$isRecording();
     }
 
-    public async startRecordingSession(token: AuthToken) {
+    public async startRecordingSession(token: AuthToken): Promise<boolean> {
         try {
             this.screenStream = await navigator.mediaDevices.getDisplayMedia({video: true, audio: false});
             const audioStream = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
 
-            await this.assistantLiveSessionSocketService.connect(token);
+            await this.assistantLiveSessionSocketService.connect(token, 'screen');
             this.startScreenCapture();
             await this.setupAudioStreaming(audioStream);
 
             this._$isRecording.set(true);
+            return true;
         } catch (error) {
             console.error('Error starting recording session => ', error);
+            return false;
+        }
+    }
+
+    public async startRecordingCameraSession(token: AuthToken, videoElement: HTMLVideoElement): Promise<boolean> {
+        try {
+            this.screenStream = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
+            const audioStream = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+
+            await this.assistantLiveSessionSocketService.connect(token, 'camera');
+            this.startCameraCapture(videoElement);
+            await this.setupAudioStreaming(audioStream);
+
+            this._$isRecording.set(true);
+            return true;
+        } catch (error) {
+            console.error('Error starting recording session => ', error);
+            return false;
         }
     }
 
@@ -96,6 +115,35 @@ export class VirtualAssistantService {
         }, 1000);
     }
 
+    private startCameraCapture(videoElement: HTMLVideoElement) {
+        if (!this.screenStream) {
+            return;
+        }
+        const video = document.createElement('video');
+        video.srcObject = this.screenStream;
+        videoElement.srcObject = this.screenStream;
+        video.play();
+
+        this.screenStream.getTracks().forEach(track => track.onended = () => this.stopRecordingSession());
+
+        this.screenCaptureInterval = setInterval(async () => {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+
+                if (ctx) {
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                    this.assistantLiveSessionSocketService.sendImageFrame(imageData);
+                }
+            } catch (error) {
+                console.error('Errore durante la cattura dello screenshot:', error);
+            }
+        }, 1000);
+    }
+
     public stopRecordingSession() {
         if (this.screenCaptureInterval) {
             clearInterval(this.screenCaptureInterval);
@@ -112,7 +160,6 @@ export class VirtualAssistantService {
                 this.audioContext.close();
             }
         }
-
         this.assistantLiveSessionSocketService.closeConnection();
         this._$isRecording.set(false);
     }

@@ -1,15 +1,15 @@
 import {ChangeDetectionStrategy, Component, effect, ElementRef, inject, Signal, viewChild} from '@angular/core';
-import {VirtualAssistantService} from '../../services/virtual-assistant.service';
 import {NgOptimizedImage} from '@angular/common';
+import {VirtualAssistantService} from '../../services/virtual-assistant.service';
 import {VirtualAssistantSocketService} from '../../services/virtual-assistant-socket.service';
-import {WebSocketVitalStatus} from '../../helpers/websocket-vital-status.enum';
 import {VirtualAssistantHttpService} from '../../services/virtual-assistant-http.service';
+import {Router} from '@angular/router';
+import {WebSocketVitalStatus} from '../../helpers/websocket-vital-status.enum';
 import {tap} from 'rxjs';
 import {AuthToken} from '@google/genai';
-import {Router} from '@angular/router';
 
 @Component({
-    selector: 'app-virtual-assistant',
+    selector: 'app-camera-virtual-assistant',
     imports: [
         NgOptimizedImage
     ],
@@ -17,17 +17,16 @@ import {Router} from '@angular/router';
     template: `
         <div class="text-center w-full px-4 py-8">
             <div class="mb-6 flex justify-center">
-                <img ngSrc="/napolitan-rabbit-ears.png" alt="rabbit-ears" width="300" height="212" priority=""/>
+                <img ngSrc="/armochromy-rabbit-ears.png" alt="rabbit-ears" width="300" height="212" priority=""/>
             </div>
 
             <h1 class="text-3xl md:text-4xl font-extrabold mb-4" style="color: #2267c5">
-                🍕 Parla con Rabbit, ‘o pizzaiuolo napulitano
+                🎨 Parla con Rabbit, il raffinato esperto di armocromia
             </h1>
             <p class="text-gray-400 mb-8 leading-relaxed">
-                Aò, jamme bell’! Prepara il forno!
+                Bonjour!
                 <br>
-                Avvia ‘na chiacchierata cu ‘nu vero maestro ‘e pizze e vedimm’ che combini!
-                <br>
+                Lascia che un vero intenditore di eleganza analizzi i tuoi colori e riveli la palette più sublime per te.
             </p>
 
             <div class="flex flex-col items-center">
@@ -38,27 +37,34 @@ import {Router} from '@angular/router';
                     @if (isSessionRecording()) {
                         <span>Termina la sessione</span>
                     } @else {
-                        <span>👀 Famme vede’ ‘a pizza toja</span>
+                        <span>📸 Inizia l’analisi dei tuoi colori</span>
                     }
                 </button>
-
+                <video class="video w-[500px]"
+                       #video
+                       autoplay
+                       [class.h-0]="!isSessionRecording()"
+                       [class.invisible]="!isSessionRecording()">
+                </video>
                 @if (!isSessionRecording()) {
                     <button
                         class="hover:bg-blue-400 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 ease-in-out w-fit transform hover:scale-105 active:scale-95 my-4"
                         style="background-color: #2267c5"
-                        (click)="navigateToCameraAssistant()">
-                        🎨 Scopri la tua palette di colori
+                        (click)="navigateToScreenAssistant()">
+                        🍕 Torna d’‘o pizzaiuolo
                     </button>
                 }
             </div>
         </div>
-    `,
+    `
 })
-export class VirtualAssistant {
+export class CameraVirtualAssistant {
     private virtualAssistantService: VirtualAssistantService = inject(VirtualAssistantService);
     private virtualAssistantSocketService: VirtualAssistantSocketService = inject(VirtualAssistantSocketService);
     private virtualAssistantHttpService: VirtualAssistantHttpService = inject(VirtualAssistantHttpService);
     private router: Router = inject(Router);
+
+    public videoElementRef: Signal<ElementRef<HTMLVideoElement> | undefined> = viewChild('video');
 
     private pipWindow: Window | undefined;
 
@@ -82,8 +88,8 @@ export class VirtualAssistant {
         }
     }
 
-    public navigateToCameraAssistant() {
-        this.router.navigate(['/camera']);
+    public navigateToScreenAssistant() {
+        this.router.navigate(['/']);
     }
 
     // Private Methods
@@ -91,12 +97,14 @@ export class VirtualAssistant {
     private async startRecordingSession() {
         this.virtualAssistantHttpService.generateEphemeralToken().pipe(
             tap(async (token: AuthToken) => {
-                const isConnectionStable = await this.virtualAssistantService.startRecordingSession(token);
+                if (!this.videoElementRef()?.nativeElement) {
+                    return;
+                }
+                const isConnectionStable = await this.virtualAssistantService.startRecordingCameraSession(token, this.videoElementRef()!.nativeElement);
 
                 if (this.pipWindow || !isConnectionStable) {
                     return;
                 }
-
                 this.pipWindow = await (window).documentPictureInPicture.requestWindow({
                     disallowReturnToOpener: true,
                     width: 265,

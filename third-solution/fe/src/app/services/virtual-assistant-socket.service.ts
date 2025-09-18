@@ -1,7 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {WebSocketVitalStatus, WebSocketVitalStatusType} from '../helpers/websocket-vital-status.enum';
 import {AuthToken, GoogleGenAI, LiveServerMessage, Session} from '@google/genai';
-import {geminiConfig} from '../helpers/gemini-config';
+import {geminiConfig, getGeminiConfigFromSessionType} from '../helpers/gemini-config';
 
 @Injectable({
     providedIn: 'root'
@@ -32,26 +32,24 @@ export class VirtualAssistantSocketService {
         this.$_socketVitalStatus.set(status);
     }
 
-    public async connect(token: AuthToken) {
+    public async connect(token: AuthToken, sessionType: 'screen' | 'camera') {
         if (this.$_socketVitalStatus() == WebSocketVitalStatus.ACTIVE) {
             return;
         }
 
         this.geminiAi = new GoogleGenAI({
             apiKey: token.name,
-            httpOptions: { apiVersion: 'v1alpha' }
+            httpOptions: {apiVersion: 'v1alpha'}
         });
         this.session = await this.geminiAi.live.connect({
             model: 'gemini-2.0-flash-live-001',
-            config: geminiConfig,
+            config: getGeminiConfigFromSessionType(sessionType),
             callbacks: {
                 onmessage: (message: LiveServerMessage) => this.handleIncomingMessage(message),
-                onerror: (error) => {
-                    console.log('error > ', error);
+                onerror: () => {
                     this.setSocketVitalStatus(WebSocketVitalStatus.ERROR);
                 },
-                onclose: (closeEvent: CloseEvent) => {
-                    console.log('wowow > ', closeEvent);
+                onclose: () => {
                     this.setSocketVitalStatus(WebSocketVitalStatus.CLOSED)
                 },
             }

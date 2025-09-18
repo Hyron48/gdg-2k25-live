@@ -3,9 +3,9 @@
     "version": "0.0.0",
     "scripts": {
         "ng": "ng",
-        "start": "ng serve",
-        "build": "ng build",
-        "watch": "ng build --watch --configuration development",
+        "start:fe": "ng serve ",
+        "start:be": "cd ../be/container && npm start",
+        "start-third-solution": "npm run start:fe & npm run start:be",
         "test": "ng test"
     },
     "prettier": {
